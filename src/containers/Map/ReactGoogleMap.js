@@ -1,6 +1,13 @@
 /* GLOBAL: google */
 import React, { Component, PropTypes } from 'react';
-import { GoogleMap, Polyline } from 'react-google-maps';
+import { GoogleMap, Polyline, OverlayView } from 'react-google-maps';
+const styles = {
+  overlayView: {
+    background: 'white',
+    border: '1px solid #ccc',
+    padding: 15,
+  },
+};
 
 export default class ReactGoogleMap extends Component { //eslint-disable-line
   constructor() {
@@ -9,29 +16,12 @@ export default class ReactGoogleMap extends Component { //eslint-disable-line
       startDraw: false
     };
   }
-  // componentWillUpdate(nextProps) {
-  //   if (nextProps.isDrawingMode) {
-  //     this.refs.polydraw.setMap(null);
-  //     console.log(this.refs.polydraw);
-  //   }
-  // }
-  onMouseoverHandler = () => {
-    // this.polydraw = new google.maps.Polyline({ map: this.refs.map, clickable: false });
-    // this.move = google.maps.event.addListener(this.refs.map, 'mousemove', (e) => {
-    //   this.refs.polydraw.getPath().push(e.latLng);
-    // });
-    // console.log('this.move', this.move);
-  }
   onMousemoveHandler = (e) => {
     const { isDrawingMode } = this.props;
     const { startDraw } = this.state;
     if (isDrawingMode && startDraw) {
       this.refs.polydraw.getPath().push(e.latLng);
-      // const path = this.refs.polydraw.getPath();
     }
-  }
-  onMouseoutHandler = () => {
-    google.maps.event.removeListener(this.move);
   }
   onMousedownHandler = () => {
     this.setState({ startDraw: true });
@@ -43,11 +33,30 @@ export default class ReactGoogleMap extends Component { //eslint-disable-line
       const { updatePathHandler } = this.props;
       const path = this.refs.polydraw.getPath();
       updatePathHandler(path.j);
+
       this.setState({ startDraw: false });
     }
   }
+  renderMarkers() {
+    const { markers } = this.props;
+    return markers.map(marker => { //eslint-disable-line
+      return (
+        <OverlayView
+          position={marker.position}
+          mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+          getPixelPositionOffset={this.getPixelPositionOffset}
+        >
+          <svg>
+            <circle cx="25" cy="75" r="20" stroke="red" fill="transparent" strokeWidth="5" />
+          </svg>
+        </OverlayView>
+      );
+    });
+  }
   render() {
-    const { path, isDrawingMode } = this.props;
+    const { polylineOptions, isDrawingMode, path, region } = this.props;
+    const markers = this.renderMarkers();
+    const isRegionDrawn = (region === 'draw');
     return (
       <div
         onMouseDown={this.onMousedownHandler}
@@ -62,17 +71,17 @@ export default class ReactGoogleMap extends Component { //eslint-disable-line
           }}
           defaultZoom={14}
           defaultCenter={new google.maps.LatLng(25.033, 121.565)}
-          onMouseover={this.onMouseOverHandler}
           onMousemove={this.onMousemoveHandler}
-          onMouseout={this.onMouseoutHandler}
           options={{
             draggable: !isDrawingMode
           }}
           ref={'_map'}
         >
+          {markers}
           <Polyline
             ref={'polydraw'}
             options={{
+              ...polylineOptions,
               path
             }}
           />
@@ -84,6 +93,9 @@ export default class ReactGoogleMap extends Component { //eslint-disable-line
 
 ReactGoogleMap.propTypes = {
   isDrawingMode: PropTypes.bool,
+  markers: PropTypes.array,
+  polylineOptions: PropTypes.object,
   path: PropTypes.array,
+  region: PropTypes.string,
   updatePathHandler: PropTypes.func,
 };

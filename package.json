@@ -13,7 +13,8 @@
   "keywords": [
     "react",
     "redux",
-    "draftjs"
+    "react-google-maps",
+    "draw"
   ],
   "author": "Lai Chia Sheng <jason0911520@gmail.com> (http://groupystinks.com/)",
   "license": "MIT",
