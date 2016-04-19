@@ -2,17 +2,19 @@ import React, { Component, PropTypes } from 'react';
 import ReactGoogleMap from './ReactGoogleMap';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { updatePath, erasePath } from 'redux/modules/map';
+import { updatePath, erasePath, renderMarker } from 'redux/modules/map';
 
 @connect(
   state => ({
     defaultCenter: state.map.defaultCenter,
+    isMarkerReady: state.map.isMarkerReady,
     markers: state.map.markers,
     path: state.map.path,
     region: state.map.region,
   }),
   dispatch => bindActionCreators({
     erasePath,
+    renderMarker,
     updatePath
   }, dispatch)
 )
@@ -64,18 +66,20 @@ export default class Map extends Component {
   }
   render() {
     const { isDrawingMode } = this.state;
-    const { defaultCenter, markers, polylineOptions, path, region, updatePath } = this.props; // eslint-disable-line
+    const { defaultCenter, isMarkerReady, markers, polyOptions, path, region, renderMarker, updatePath } = this.props; // eslint-disable-line
     const tool = this.renderMapTool();
     return (
       <div>
         <ReactGoogleMap
           defaultCenter={defaultCenter}
-          polylineOptions={polylineOptions}
+          polyOptions={polyOptions}
           isDrawingMode={isDrawingMode}
+          isMarkerReady={isMarkerReady}
           markers={markers}
           onClickHandler={this.onClickHandler}
           region={region}
           path={path}
+          renderMarkerHandler={renderMarker}
           updatePathHandler={updatePath}
         />
         {tool}
@@ -88,13 +92,13 @@ Map.propTypes = {
   markers: PropTypes.array,
   path: PropTypes.array,
   region: PropTypes.string,
-  polylineOptions: PropTypes.object,
+  polyOptions: PropTypes.object,
 };
 
 Map.defaultProps = {
   markers: [],
   path: [],
-  polylineOptions: {
+  polyOptions: {
     strokeColor: '#286404'
   },
   region: 'map'

@@ -1,13 +1,20 @@
 /* GLOBAL: google */
 import React, { Component, PropTypes } from 'react';
-import { GoogleMap, Polyline, OverlayView } from 'react-google-maps';
+import { GoogleMap, Polyline, Polygon, OverlayView } from 'react-google-maps';
 
 export default class ReactGoogleMap extends Component { // eslint-disable-line
   constructor() {
     super();
+    this.polygonInst = null;
     this.state = {
-      startDraw: false
+      startDraw: false,
     };
+  }
+  componentDidUpdate(prevProps) {
+    if (prevProps.region === 'map' && this.props.region === 'draw') {
+      const { renderMarkerHandler } = this.props;
+      renderMarkerHandler();
+    }
   }
   onMousemoveHandler = (e) => {
     const { isDrawingMode } = this.props;
@@ -33,9 +40,24 @@ export default class ReactGoogleMap extends Component { // eslint-disable-line
       this.setState({ startDraw: false });
     }
   }
+  onZoomChangeHandler = () => {
+    const bounds = this.refs._map.getBounds();
+    const northEast = bounds.getNorthEast();
+    const southWest = bounds.getSouthWest();
+    console.log('ne, sw', northEast.lat(), northEast.lng(), southWest.lat(), southWest.lng());
+    // dispatch action to query back-end.
+  }
   renderMarkers() {
-    const { markers } = this.props;
+    const { isMarkerReady, path, region } = this.props;
+    let { markers } = this.props;
     if (markers.length === 0) { return null; }
+    if (region === 'draw' && isMarkerReady) {
+      const polygonInst = new google.maps.Polygon({ paths: path });
+      markers = markers.filter(marker => {
+        const markerPosition = new google.maps.LatLng(marker.position.lat, marker.position.lng);
+        return google.maps.geometry.poly.containsLocation(markerPosition, polygonInst);
+      });
+    }
     return markers.map(marker => { //eslint-disable-line
       return (
         <OverlayView
@@ -50,9 +72,34 @@ export default class ReactGoogleMap extends Component { // eslint-disable-line
       );
     });
   }
+  renderPoly = () => {
+    const { polyOptions, path, region } = this.props;
+    if (region === 'map') {
+      return (
+        <Polyline
+          ref={'polydraw'}
+          options={{
+            ...polyOptions,
+            path
+          }}
+        />
+      );
+    }
+
+    return (
+      <Polygon
+        ref={'polydraw'}
+        options={{
+          ...polyOptions,
+          path
+        }}
+      />
+    );
+  }
   render() {
-    const { defaultCenter, polylineOptions, isDrawingMode, path } = this.props;
+    const { defaultCenter, isDrawingMode } = this.props;
     const markers = this.renderMarkers();
+    const poly = this.renderPoly();
     return (
       <div
         onMouseDown={this.onMousedownHandler}
@@ -71,19 +118,14 @@ export default class ReactGoogleMap extends Component { // eslint-disable-line
           defaultZoom={14}
           defaultCenter={new google.maps.LatLng(defaultCenter.lat, defaultCenter.lng)}
           onMousemove={this.onMousemoveHandler}
+          onZoomChanged={this.onZoomChangeHandler}
           options={{
             draggable: !isDrawingMode
           }}
           ref={'_map'}
         >
           {markers}
-          <Polyline
-            ref={'polydraw'}
-            options={{
-              ...polylineOptions,
-              path
-            }}
-          />
+          {poly}
         </GoogleMap>
       </div>
     );
@@ -95,9 +137,11 @@ ReactGoogleMap.displayName = 'ReactGoogleMap';
 ReactGoogleMap.propTypes = {
   defaultCenter: PropTypes.object.isRequired,
   isDrawingMode: PropTypes.bool.isRequired,
+  isMarkerReady: PropTypes.bool.isRequired,
   markers: PropTypes.array,
-  polylineOptions: PropTypes.object,
+  polyOptions: PropTypes.object,
   path: PropTypes.array,
   region: PropTypes.string,
+  renderMarkerHandler: PropTypes.func,
   updatePathHandler: PropTypes.func,
 };
