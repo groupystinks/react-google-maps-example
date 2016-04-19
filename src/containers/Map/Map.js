@@ -6,6 +6,7 @@ import { updatePath, erasePath } from 'redux/modules/map';
 
 @connect(
   state => ({
+    defaultCenter: state.map.defaultCenter,
     markers: state.map.markers,
     path: state.map.path,
     region: state.map.region,
@@ -36,11 +37,11 @@ export default class Map extends Component {
     const { region } = this.props;
     const { isDrawingMode } = this.state;
     const style = {
-      top: '25px',
-      position: 'absolute',
-      width: '100px',
       height: '100px',
-      left: '20px'
+      left: '20px',
+      position: 'absolute',
+      top: '25px',
+      width: '100px',
     };
     if (region === 'map') {
       return (
@@ -63,11 +64,12 @@ export default class Map extends Component {
   }
   render() {
     const { isDrawingMode } = this.state;
-    const { markers, polylineOptions, path, region, updatePath } = this.props; // eslint-disable-line
+    const { defaultCenter, markers, polylineOptions, path, region, updatePath } = this.props; // eslint-disable-line
     const tool = this.renderMapTool();
     return (
       <div>
         <ReactGoogleMap
+          defaultCenter={defaultCenter}
           polylineOptions={polylineOptions}
           isDrawingMode={isDrawingMode}
           markers={markers}
@@ -90,7 +92,10 @@ Map.propTypes = {
 };
 
 Map.defaultProps = {
+  markers: [],
+  path: [],
   polylineOptions: {
     strokeColor: '#286404'
   },
+  region: 'map'
 };

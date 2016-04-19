@@ -3,12 +3,12 @@ const PATH_ERASE = 'map/PATH_ERASE';
 
 const initialState = {
   region: 'map',
-  path: [
-    { lat: 25.033, lng: 121.565 },
-    { lat: 25.043, lng: 121.575 },
-    { lat: 25.043, lng: 121.575 },
-    { lat: 25.033, lng: 121.565 }
-  ],
+  // taipei
+  defaultCenter: {
+    lat: 25.0338,
+    lng: 121.5644,
+  },
+  path: [],
   markers: [
     {
       position: {
@@ -25,6 +25,14 @@ const initialState = {
       },
       key: 'hotdogs520',
       name: 'MChotdog',
+    },
+    {
+      position: {
+        lat: 25.0338,
+        lng: 121.5644
+      },
+      key: 'taipei101',
+      name: 'taipei101',
     },
   ]
 };

@@ -1,15 +1,8 @@
 /* GLOBAL: google */
 import React, { Component, PropTypes } from 'react';
 import { GoogleMap, Polyline, OverlayView } from 'react-google-maps';
-const styles = {
-  overlayView: {
-    background: 'white',
-    border: '1px solid #ccc',
-    padding: 15,
-  },
-};
 
-export default class ReactGoogleMap extends Component { //eslint-disable-line
+export default class ReactGoogleMap extends Component { // eslint-disable-line
   constructor() {
     super();
     this.state = {
@@ -24,7 +17,10 @@ export default class ReactGoogleMap extends Component { //eslint-disable-line
     }
   }
   onMousedownHandler = () => {
-    this.setState({ startDraw: true });
+    const { isDrawingMode } = this.props;
+    if (isDrawingMode) {
+      this.setState({ startDraw: true });
+    }
   }
   onMouseupHandler = () => {
     const { isDrawingMode } = this.props;
@@ -39,28 +35,31 @@ export default class ReactGoogleMap extends Component { //eslint-disable-line
   }
   renderMarkers() {
     const { markers } = this.props;
+    if (markers.length === 0) { return null; }
     return markers.map(marker => { //eslint-disable-line
       return (
         <OverlayView
+          key={marker.key}
           position={marker.position}
           mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
-          getPixelPositionOffset={this.getPixelPositionOffset}
         >
           <svg>
-            <circle cx="25" cy="75" r="20" stroke="red" fill="transparent" strokeWidth="5" />
+            <circle cx="7" cy="7" r="4.5" stroke="red" fill="transparent" strokeWidth="5" />
           </svg>
         </OverlayView>
       );
     });
   }
   render() {
-    const { polylineOptions, isDrawingMode, path, region } = this.props;
+    const { defaultCenter, polylineOptions, isDrawingMode, path } = this.props;
     const markers = this.renderMarkers();
-    const isRegionDrawn = (region === 'draw');
     return (
       <div
         onMouseDown={this.onMousedownHandler}
         onMouseUp={this.onMouseupHandler}
+        style={{
+          cursor: isDrawingMode ? 'crosshair' : 'default'
+        }}
       >
         <GoogleMap
           containerProps={{
@@ -70,7 +69,7 @@ export default class ReactGoogleMap extends Component { //eslint-disable-line
             },
           }}
           defaultZoom={14}
-          defaultCenter={new google.maps.LatLng(25.033, 121.565)}
+          defaultCenter={new google.maps.LatLng(defaultCenter.lat, defaultCenter.lng)}
           onMousemove={this.onMousemoveHandler}
           options={{
             draggable: !isDrawingMode
@@ -91,8 +90,11 @@ export default class ReactGoogleMap extends Component { //eslint-disable-line
   }
 }
 
+ReactGoogleMap.displayName = 'ReactGoogleMap';
+
 ReactGoogleMap.propTypes = {
-  isDrawingMode: PropTypes.bool,
+  defaultCenter: PropTypes.object.isRequired,
+  isDrawingMode: PropTypes.bool.isRequired,
   markers: PropTypes.array,
   polylineOptions: PropTypes.object,
   path: PropTypes.array,
