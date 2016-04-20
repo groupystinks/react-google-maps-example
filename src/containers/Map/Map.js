@@ -2,10 +2,11 @@ import React, { Component, PropTypes } from 'react';
 import ReactGoogleMap from './ReactGoogleMap';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { updatePath, erasePath, renderMarker } from 'redux/modules/map';
+import { erasePath, loadMarker, renderMarker, updatePath } from 'redux/modules/map';
 
 @connect(
   state => ({
+    bound: state.map.bound,
     defaultCenter: state.map.defaultCenter,
     isMarkerReady: state.map.isMarkerReady,
     markers: state.map.markers,
@@ -14,6 +15,7 @@ import { updatePath, erasePath, renderMarker } from 'redux/modules/map';
   }),
   dispatch => bindActionCreators({
     erasePath,
+    loadMarker,
     renderMarker,
     updatePath
   }, dispatch)
@@ -24,6 +26,10 @@ export default class Map extends Component {
     this.state = {
       isDrawingMode: false
     };
+  }
+  componentDidMount() {
+    const { bound, loadMarker } = this.props; // eslint-disable-line
+    loadMarker(bound.ne, bound.sw);
   }
   onSwitchHandler = () => {
     const { isDrawingMode } = this.state;
@@ -66,7 +72,7 @@ export default class Map extends Component {
   }
   render() {
     const { isDrawingMode } = this.state;
-    const { defaultCenter, isMarkerReady, markers, polyOptions, path, region, renderMarker, updatePath } = this.props; // eslint-disable-line
+    const { defaultCenter, loadMarker, isMarkerReady, markers, polyOptions, path, region, renderMarker, updatePath } = this.props; // eslint-disable-line
     const tool = this.renderMapTool();
     return (
       <div>

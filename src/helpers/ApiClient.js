@@ -1,41 +1,36 @@
-import Firebase from 'firebase';
+import superagent from 'superagent';
 import config from '../config';
 
 const methods = ['get', 'post', 'put', 'patch', 'del'];
 
-/*
- * This silly underscore is here to avoid a mysterious
- * "ReferenceError: ApiClient is not defined" error.
- * See Issue #14. https://github.com/erikras/react-redux-universal-hot-example/issues/14
- *
- * Remove it at your own risk.
- */
+function formatUrl(path) {
+  const adjustedPath = path[0] !== '/' ? '/'.concat(path) : path;
+  return config.baseUrl.concat('/api').concat(adjustedPath);
+}
 
-class _FirebaseApiClient {
+class _ApiClient {
   constructor() {
-    methods.forEach((method) =>
-      this[method] = (children, { data } = {}) => new Promise((resolve, reject) => {
-        const ref = new Firebase(`${config.firebaseUrl}/${children}`);
-        switch (method) {
-          case 'get':
-            ref.on('value', (snapshot) => {
-              resolve(snapshot.val());
-            }, (error) => {
-              reject(error.code);
-            });
-            break;
-          case 'post':
-            ref.set(data);
-            break;
-          default:
-            return true;
+    methods.forEach((method) => // eslint-disable-line
+      this[method] = (path, { params, data } = {}) => new Promise((resolve, reject) => {
+        const request = superagent[method](formatUrl(path));
+
+        if (params) {
+          request.query(params);
         }
+
+        if (data) {
+          request.send(data);
+        }
+
+        request.end((err, { body } = {}) => { // eslint-disable-line
+          return err ? reject(body || err) : resolve(body);
+        });
       }));
   }
 }
 
-const FirebaseApiClient = _FirebaseApiClient;
+const ApiClient = _ApiClient;
 
 export {
-  FirebaseApiClient
+  ApiClient
 };

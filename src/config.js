@@ -8,16 +8,16 @@ const environment = {
 }[process.env.NODE_ENV || 'development'];
 
 module.exports = Object.assign({
-  firebaseUrl: 'https://fiery-torch-9452.firebaseio.com',
+  baseUrl: 'http://roommatee.azurewebsites.net',
   app: {
-    title: 'writer',
+    title: 'react-google-maps-example',
     description: '',
     meta: {
       charSet: 'utf-8',
       property: {
-        'og:site_name': 'editor',
+        'og:site_name': 'react-google-maps-example',
         'og:locale': 'zh-TW',
-        'og:title': 'editor'
+        'og:title': 'react-google-maps-example'
       }
     }
   }

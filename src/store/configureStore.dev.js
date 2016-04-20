@@ -3,11 +3,11 @@ import { persistState } from 'redux-devtools';
 import reducers from 'redux/modules/reducer';
 import DevTools from '../containers/DevTools/DevTools';
 import clientMiddleware from '../redux/middleware/clientMiddleware';
-import { FirebaseApiClient } from '../helpers/ApiClient';
+import { ApiClient } from '../helpers/ApiClient';
 
-const firebaseApi = new FirebaseApiClient();
+const azureApi = new ApiClient();
 const enhancer = compose(
-  applyMiddleware(clientMiddleware({ firebaseApi })),
+  applyMiddleware(clientMiddleware({ azureApi })),
   window.devToolsExtension ? window.devToolsExtension() : DevTools.instrument(),
   persistState(
     window.location.href.match(

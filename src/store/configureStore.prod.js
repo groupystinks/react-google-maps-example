@@ -1,11 +1,11 @@
 import { applyMiddleware, createStore } from 'redux';
 import reducers from 'redux/modules/reducer';
 import clientMiddleware from '../redux/middleware/clientMiddleware';
-import { FirebaseApiClient } from '../helpers/ApiClient';
+import { ApiClient } from '../helpers/ApiClient';
 
-const firebaseApi = new FirebaseApiClient();
+const azureApi = new ApiClient();
 
-const enhancer = applyMiddleware(clientMiddleware({ firebaseApi }));
+const enhancer = applyMiddleware(clientMiddleware({ azureApi }));
 
 export default function configureStore(initialState) {
   return createStore(reducers, initialState, enhancer);
