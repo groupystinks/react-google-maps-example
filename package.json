@@ -1,27 +1,30 @@
 {
   "name": "react-google-maps-example",
   "version": "0.0.1",
-  "description": "draw and fetch data on GoogleMap, base on react-google-maps",
+  "description": "draw and fetch data, base on react-google-maps",
   "main": "src/index.js",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development node ./server"
+    "clean": "rimraf dist",
+    "dev": "cross-env NODE_ENV=development node ./server",
+    "build:gh-pages": "npm run clean && cross-env NODE_ENV=production webpack --config webpack.prod.config.js",
+    "deploy:gh-pages": "npm run build:gh-pages && git checkout gh-pages && cp dist/* . && git commit -am 'Code update' && git push origin gh-pages && git checkout master"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/groupystinks/writer.git"
+    "url": "git+https://github.com/groupystinks/react-google-maps-example.git"
   },
   "keywords": [
     "react",
     "redux",
     "react-google-maps",
-    "draw"
+    "google map interaction"
   ],
   "author": "Lai Chia Sheng <jason0911520@gmail.com> (http://groupystinks.com/)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/groupystinks/writer/issues"
+    "url": "https://github.com/groupystinks/react-google-maps-example/issues"
   },
-  "homepage": "https://github.com/groupystinks/writer#readme",
+  "homepage": "https://github.com/groupystinks/react-google-maps-example#readme",
   "dependencies": {
     "history": "2.0.1",
     "react": "0.14.8",
