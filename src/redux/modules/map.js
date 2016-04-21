@@ -98,7 +98,7 @@ export default function map(state = initialState, action = {}) {
         isLoadingMarker: true
       };
     case LOAD_MARKER_SUCCESS: {
-      const markers = JSON.parse(action.result).MapInfo.map(marker => { // eslint-disable-line
+      const markers = action.result.MapInfo.map(marker => { // eslint-disable-line
         return {
           position: {
             lat: marker.latitude,

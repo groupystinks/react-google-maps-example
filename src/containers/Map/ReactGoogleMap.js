@@ -5,7 +5,6 @@ import { GoogleMap, Polyline, Polygon, OverlayView } from 'react-google-maps';
 export default class ReactGoogleMap extends Component { // eslint-disable-line
   constructor() {
     super();
-    this.polygonInst = null;
     this.state = {
       startDraw: false,
     };
@@ -40,12 +39,18 @@ export default class ReactGoogleMap extends Component { // eslint-disable-line
       this.setState({ startDraw: false });
     }
   }
-  onZoomChangeHandler = () => {
-    const bounds = this.refs._map.getBounds();
-    const northEast = bounds.getNorthEast();
-    const southWest = bounds.getSouthWest();
-    console.log('ne, sw', northEast.lat(), northEast.lng(), southWest.lat(), southWest.lng());
-    // dispatch action to query back-end.
+  // use idle because bounds_changed event fire multiple times
+  onIdleHandler = () => {
+    const { loadMarker, region } = this.props;
+    if (region === 'map') {
+      const bounds = this.refs._map.getBounds();
+      const northEast = bounds.getNorthEast();
+      const southWest = bounds.getSouthWest();
+      loadMarker(
+        { lat: northEast.lat(), lng: northEast.lng() },
+        { lat: southWest.lat(), lng: southWest.lng() }
+      );
+    }
   }
   renderMarkers() {
     const { isMarkerReady, path, region } = this.props;
@@ -97,7 +102,7 @@ export default class ReactGoogleMap extends Component { // eslint-disable-line
     );
   }
   render() {
-    const { defaultCenter, isDrawingMode } = this.props;
+    const { defaultCenter, isDrawingMode, region } = this.props;
     const markers = this.renderMarkers();
     const poly = this.renderPoly();
     return (
@@ -118,9 +123,9 @@ export default class ReactGoogleMap extends Component { // eslint-disable-line
           defaultZoom={14}
           defaultCenter={new google.maps.LatLng(defaultCenter.lat, defaultCenter.lng)}
           onMousemove={this.onMousemoveHandler}
-          onZoomChanged={this.onZoomChangeHandler}
+          onIdle={this.onIdleHandler}
           options={{
-            draggable: !isDrawingMode
+            draggable: !isDrawingMode || region === 'draw'
           }}
           ref={'_map'}
         >
@@ -139,6 +144,7 @@ ReactGoogleMap.propTypes = {
   isDrawingMode: PropTypes.bool.isRequired,
   isMarkerReady: PropTypes.bool.isRequired,
   markers: PropTypes.array,
+  loadMarker: PropTypes.func,
   polyOptions: PropTypes.object,
   path: PropTypes.array,
   region: PropTypes.string,

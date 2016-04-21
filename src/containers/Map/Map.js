@@ -27,10 +27,6 @@ export default class Map extends Component {
       isDrawingMode: false
     };
   }
-  componentDidMount() {
-    const { bound, loadMarker } = this.props; // eslint-disable-line
-    loadMarker(bound.ne, bound.sw);
-  }
   onSwitchHandler = () => {
     const { isDrawingMode } = this.state;
     this.setState({ isDrawingMode: !isDrawingMode });
@@ -82,6 +78,7 @@ export default class Map extends Component {
           isDrawingMode={isDrawingMode}
           isMarkerReady={isMarkerReady}
           markers={markers}
+          loadMarker={loadMarker}
           onClickHandler={this.onClickHandler}
           region={region}
           path={path}
