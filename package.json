@@ -1,6 +1,6 @@
 {
   "name": "react-google-maps-example",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "draw and fetch data, base on react-google-maps",
   "main": "src/index.js",
   "scripts": {

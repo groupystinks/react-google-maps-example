@@ -23,8 +23,8 @@ export default class ReactGoogleMap extends Component { // eslint-disable-line
     }
   }
   onMousedownHandler = () => {
-    const { isDrawingMode } = this.props;
-    if (isDrawingMode) {
+    const { isDrawingMode, region } = this.props;
+    if (isDrawingMode && region === 'map') {
       this.setState({ startDraw: true });
     }
   }
